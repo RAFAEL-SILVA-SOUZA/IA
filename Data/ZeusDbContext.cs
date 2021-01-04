@@ -7,10 +7,8 @@ namespace Zeus.Data
 {
     public class ZeusDbContext : DbContext
     {
-
         public virtual DbSet<Pergunta> Perguntas { get; set; }
         public virtual DbSet<Resposta> Respostas { get; set; }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,13 +23,11 @@ namespace Zeus.Data
                 var builder = new SqlConnectionStringBuilder
                 {
                     ApplicationName = "ZEUS",
-                    DataSource = "LISSA",
+                    DataSource = "(localdb)\\MSSQLLocalDB",
                     InitialCatalog = "zeus",
                     ConnectRetryCount = 3,
                     ConnectTimeout = 30,
-                    MinPoolSize = 5,
-                    UserID = "sa",
-                    Password= "sys@36911"
+                    MinPoolSize = 5
                 };
 
                 optionsBuilder.UseSqlServer(builder.ConnectionString);
