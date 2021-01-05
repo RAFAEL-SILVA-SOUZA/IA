@@ -20,6 +20,12 @@ namespace Zeus.Sevice
             zeusDbContext = new ZeusDbContext();
         }
 
+
+        public IList<Resposta> RespostasDeUmaPergunta(Pergunta pergunta)
+        {
+            return zeusDbContext.Respostas.Where(x => x.PerguntaId == pergunta.Id).ToList();
+        }
+
         public (Resposta resposta, bool respondido) Perguntar(Pergunta pergunta)
         {
 
@@ -47,14 +53,41 @@ namespace Zeus.Sevice
 
             if (!respostas.Any())
             {
-                //vamos buscar na net e ensinar para o zeus, rsrsrsrs
-                respostas = GetWiki(pergunta).Result.ToList();
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Olha, tentei achar algo para te ajudar, mas não consegui! Deseja buscar na web? sim(s) não(n)");
+                Console.ForegroundColor = ConsoleColor.White;
+                var termo = Console.ReadLine();
 
-                if (respostas.Any())
+                if (termo.ToLower().Equals("s"))
                 {
-                    return (ObterRespostaAleatoria(respostas), true); 
-                }
+                    respostas = GetWiki(pergunta).Result.ToList();
 
+                    if (!respostas.Any())
+                    {
+                        return (new Resposta("É, ainda assim não achei nada, quer me ensinar? sim(s) não(n)"), false);
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine($"Achei aqui {respostas.Count} alternativas para a sua pergunta, escolha uma! alternativas (1,{respostas.Count}) continuar(s)");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        termo = Console.ReadLine();
+
+                        var list = new List<int>();
+                        for (int i = 0; i < respostas.Count; i++) list.Add(i);
+
+                        while (!termo.ToLower().Equals("s") && list.Any(x => x == int.Parse(termo)))
+                        {
+                            Console.WriteLine(respostas[int.Parse(termo)-1].Descricao);
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine($"Deseja ver mais alternativas? alternativas (1,{respostas.Count}) continuar(s)");
+                            Console.ForegroundColor = ConsoleColor.White;
+                            termo = Console.ReadLine();
+                        }
+
+                        return (new Resposta("Foi bom te ajudar! ;)"), true);
+                    }
+                }
             }
 
             if (respostas.Any()) return (ObterRespostaAleatoria(respostas), true);
@@ -127,7 +160,7 @@ namespace Zeus.Sevice
                 var dados = JsonConvert.DeserializeObject<Rootobject>(result);
                 var list = new List<Resposta>();
 
-                foreach (var item in dados.query.search.OrderByDescending(x=>x.timestamp).Take(1))
+                foreach (var item in dados.query.search)
                 {
                     list.Add(new Resposta(StripHTML(item.snippet)));
 
@@ -143,7 +176,7 @@ namespace Zeus.Sevice
 
         public static string StripHTML(string input)
         {
-            return Regex.Replace(input, "<.*?>", String.Empty).Replace("&quot;","");
+            return Regex.Replace(input, "<.*?>", String.Empty).Replace("&quot;", "");
         }
     }
 }
@@ -152,35 +185,18 @@ namespace Zeus.Sevice
 
 public class Rootobject
 {
-    public string batchcomplete { get; set; }
-    public Continue _continue { get; set; }
     public Query query { get; set; }
 }
 
-public class Continue
-{
-    public int sroffset { get; set; }
-    public string _continue { get; set; }
-}
 
 public class Query
 {
-    public Searchinfo searchinfo { get; set; }
     public Search[] search { get; set; }
 }
 
-public class Searchinfo
-{
-    public int totalhits { get; set; }
-}
 
 public class Search
 {
-    public int ns { get; set; }
-    public string title { get; set; }
-    public int pageid { get; set; }
-    public int size { get; set; }
-    public int wordcount { get; set; }
     public string snippet { get; set; }
-    public DateTime timestamp { get; set; }
+
 }
