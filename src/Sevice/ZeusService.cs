@@ -20,7 +20,6 @@ namespace Zeus.Sevice
             zeusDbContext = new ZeusDbContext();
         }
 
-
         public IList<Resposta> RespostasDeUmaPergunta(Pergunta pergunta)
         {
             return zeusDbContext.Respostas.Where(x => x.PerguntaId == pergunta.Id).ToList();
@@ -28,7 +27,6 @@ namespace Zeus.Sevice
 
         public (Resposta resposta, bool respondido) Perguntar(Pergunta pergunta)
         {
-
             var _pergunta = zeusDbContext.Perguntas.FirstOrDefault(x => x.Descricao.Contains(pergunta.Descricao));
             if (_pergunta != null) pergunta = _pergunta;
 
@@ -40,16 +38,10 @@ namespace Zeus.Sevice
                 respostas = zeusDbContext.Respostas.AsQueryable().Where(x => x.PerguntaId == pergunta.Id).ToList();
 
             if (!respostas.Any())
-            {
-                if (pergunta.Id == 0)
-                    respostas = zeusDbContext.Respostas.Include(x => x.Pergunta).Where(x => x.Pergunta.Descricao.Contains(RemoverAcentos(pergunta.Descricao))).ToList();
-            }
+                respostas = zeusDbContext.Respostas.Include(x => x.Pergunta).Where(x => x.Pergunta.Descricao.Contains(RemoverAcentos(pergunta.Descricao))).ToList();
 
             if (!respostas.Any())
-            {
-                if (pergunta.Id == 0)
-                    respostas = zeusDbContext.Respostas.Include(x => x.Pergunta).Where(x => x.Pergunta.Descricao.Contains(TrocaAbreviacoes(pergunta.Descricao))).ToList();
-            }
+                respostas = zeusDbContext.Respostas.Include(x => x.Pergunta).Where(x => x.Pergunta.Descricao.Contains(pergunta.Descricao)).ToList();
 
             if (!respostas.Any())
             {
@@ -78,7 +70,7 @@ namespace Zeus.Sevice
 
                         while (!termo.ToLower().Equals("s") && list.Any(x => x == int.Parse(termo)))
                         {
-                            Console.WriteLine(respostas[int.Parse(termo)-1].Descricao);
+                            Console.WriteLine(respostas[int.Parse(termo) - 1].Descricao);
                             Console.ForegroundColor = ConsoleColor.Green;
                             Console.WriteLine($"Deseja ver mais alternativas? alternativas (1,{respostas.Count}) continuar(s)");
                             Console.ForegroundColor = ConsoleColor.White;
@@ -97,7 +89,6 @@ namespace Zeus.Sevice
 
         public void Ensinar(Resposta resposta, Pergunta pergunta)
         {
-
             var _pergunta = zeusDbContext.Perguntas.FirstOrDefault(x => x.Descricao.Contains(pergunta.Descricao));
             if (_pergunta != null) pergunta = _pergunta;
 
@@ -124,28 +115,12 @@ namespace Zeus.Sevice
             string semAcentos = "AAAAAAaaaaaEEEEeeeeIIIIiiiiOOOOOoooooUUUuuuuCc";
 
             for (int i = 0; i < comAcentos.Length; i++)
-            {
                 texto = texto.Replace(comAcentos[i].ToString(), semAcentos[i].ToString());
-            }
-            return texto;
-        }
-
-        //TODO:Melhorar
-        public static string TrocaAbreviacoes(string texto)
-        {
-            string comAcentos = "você";
-            string semAcentos = "vc";
-
-            texto = texto.Replace(comAcentos, semAcentos);
 
             return texto;
         }
 
-        public Resposta ObterRespostaAleatoria(IList<Resposta> respostas)
-        {
-            var rdn = respostas.OrderBy(a => Guid.NewGuid()).ToList();
-            return rdn.FirstOrDefault();
-        }
+        public Resposta ObterRespostaAleatoria(IList<Resposta> respostas) => respostas.OrderBy(a => Guid.NewGuid()).ToList().FirstOrDefault();
 
         public async Task<IList<Resposta>> GetWiki(Pergunta pergunta)
         {
@@ -174,29 +149,6 @@ namespace Zeus.Sevice
             return await Task.FromResult(new List<Resposta>());
         }
 
-        public static string StripHTML(string input)
-        {
-            return Regex.Replace(input, "<.*?>", String.Empty).Replace("&quot;", "");
-        }
+        public static string StripHTML(string input)=> Regex.Replace(input, "<.*?>", String.Empty).Replace("&quot;", "");
     }
-}
-
-
-
-public class Rootobject
-{
-    public Query query { get; set; }
-}
-
-
-public class Query
-{
-    public Search[] search { get; set; }
-}
-
-
-public class Search
-{
-    public string snippet { get; set; }
-
 }
