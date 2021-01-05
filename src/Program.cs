@@ -15,7 +15,7 @@ namespace Zeus
 
             while (true)
             {
-                "Como posso ajudá-lo agora?".Escreve();
+                "Como posso ajudá-lo agora?".Escreve().Falar();
                 var pergunta = Console.ReadLine();
 
                 var resposta = zeusService.Perguntar(new Pergunta() { Descricao = pergunta });
@@ -24,7 +24,7 @@ namespace Zeus
                 {
                     Console.WriteLine(resposta.resposta.Descricao);
 
-                    "Sua pergunta foi respondida? sim(s) não(n)".Escreve();
+                    $"{"Sua pergunta foi respondida?".Falar()} sim(s) não(n)".Escreve();
 
                     var termo = Console.ReadLine();
                     PerguntaRespondidaInsatisfatoria(zeusService, ref termo, ref pergunta, ref resposta, resposta.resposta.Pergunta);
@@ -37,12 +37,12 @@ namespace Zeus
 
                     if (termo.ToLower().Equals("s"))
                     {
-                        "Diga agora:".Escreve();
+                        "Diga agora:".Escreve().Falar();
 
                         termo = Console.ReadLine();
                         zeusService.Ensinar(new Resposta(termo), new Pergunta() { Descricao = pergunta });
 
-                        "Obrigado por me responder! ;)".Escreve();
+                        "Obrigado por me responder!".Escreve().Falar();
                     }
                 }
             }
@@ -52,7 +52,7 @@ namespace Zeus
         {
             if (!termo.ToLower().Equals("s"))
             {
-                "Deseja obter mais respostas ou quer me ensinar? mais respostas(s) ensinar(e)".Escreve();
+                $"{"Deseja obter mais respostas ou quer me ensinar?".Falar()} mais respostas(s) ensinar(e)".Escreve();
                 termo = Console.ReadLine();
 
                 if (termo.ToLower().Equals("s"))
@@ -61,9 +61,9 @@ namespace Zeus
 
                     if (respostas.Any())
                     {
-                        
-                        $"Achei aqui {respostas.Count} alternativas para a sua pergunta, escolha uma! alternativas (1,{respostas.Count}) continuar(s)".Escreve();
-                       
+
+                        $"{$"Achei aqui {respostas.Count} alternativas para a sua pergunta, escolha uma!".Falar()} alternativas (1,{respostas.Count}) continuar(s)".Escreve();
+
 
                         var _termo = Console.ReadLine();
 
@@ -73,32 +73,32 @@ namespace Zeus
                         while (!_termo.ToLower().Equals("s") && list.Any(x => x == int.Parse(_termo)))
                         {
                             Console.WriteLine(respostas[int.Parse(_termo) - 1].Descricao);
-                           
-                            $"Deseja ver mais alternativas? alternativas (1,{respostas.Count}) continuar(s)".Escreve();
+
+                            $"{"Deseja ver mais alternativas?".Falar()} alternativas (1,{respostas.Count}) continuar(s)".Escreve();
 
                             _termo = Console.ReadLine();
                         }
                     }
 
-                    "Sua pergunta foi respondida? sim(s) não(n)".Escreve();
+                    $"{"Sua pergunta foi respondida?".Falar()} sim(s) não(n)".Escreve();
 
                     termo = Console.ReadLine();
                     PerguntaRespondidaInsatisfatoria(zeusService, ref termo, ref pergunta, ref resposta);
                 }
                 else if (termo.ToLower().Equals("e"))
                 {
-                    "Ok, agora me diga como responder a sua pergunta! ;)".Escreve();
+                    "Ok, agora me diga como responder a sua pergunta!".Escreve().Falar();
 
                     termo = Console.ReadLine();
-                    zeusService.Ensinar(new Domain.Resposta(termo), new Domain.Pergunta() { Descricao = pergunta });
+                    zeusService.Ensinar(new Domain.Resposta(termo), new Pergunta() { Descricao = pergunta });
 
-                    "Obrigado por me responder! ;)".Escreve();
+                    "Obrigado por me responder!".Escreve().Falar();
                 }
                 else
                 {
                     Console.Clear();
 
-                    "Desculpe vamos tentar de novo! :(".Escreve();
+                    "Desculpe vamos tentar de novo!".Escreve().Falar();
                 }
             }
         }
