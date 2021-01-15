@@ -31,7 +31,7 @@ namespace Zeus.Sevice
             if (_pergunta != null) pergunta = _pergunta;
 
             var respostas = pergunta.Id == 0 ? zeusDbContext.Respostas.Include(x => x.Pergunta).Where(x => x.Pergunta.Descricao.Contains(pergunta.Descricao)).ToList()
-                                             : respostas = zeusDbContext.Respostas.AsQueryable().Where(x => x.PerguntaId == pergunta.Id).ToList();
+                                             : zeusDbContext.Respostas.AsQueryable().Where(x => x.PerguntaId == pergunta.Id).ToList();
 
             if (!respostas.Any())
                 respostas = zeusDbContext.Respostas.Include(x => x.Pergunta).Where(x => x.Pergunta.Descricao.Contains(RemoverAcentos(pergunta.Descricao))).ToList();
